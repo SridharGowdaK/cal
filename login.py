@@ -1,30 +1,31 @@
-from abc import ABC, abstractmethod
-import builtins
+class LoginSystem:
+    def __init__(self):
+        self.users = {}
+
+    def register_user(self, username, password):
+        self.users[username] = password
+        return True
+
+    def login(self, username, password):
+        return self.users.get(username) == password
 
 
-class print(ABC):
-    @abstractmethod
+class LoginPage:
+    def __init__(self):
+        self.auth = LoginSystem()
+
     def render(self):
-        """Return the page content to display."""
-        raise NotImplementedError
+        return "Login page is running"
 
-    @abstractmethod
-    def process(self):
-        """Run the login-page behavior."""
-        raise NotImplementedError
+    def process(self, username, password):
+        self.auth.register_user("admin", "admin123")
+        return self.auth.login(username, password)
 
-    def run(self):
-        """Execute the page logic and return a useful result."""
-        return self.process()
-
-
-class LoginPage(print):
-    def render(self):
-        return "login page is running"
-
-    def process(self):
-        return self.render()
+    def run(self, username, password):
+        return self.process(username, password)
 
 
 if __name__ == "__main__":
-    builtins.print(LoginPage().run())
+    page = LoginPage()
+    print(page.render())
+    print(page.run("admin", "admin123"))
