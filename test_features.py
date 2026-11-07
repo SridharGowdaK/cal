@@ -1,5 +1,8 @@
+import builtins
 import unittest
+from unittest.mock import patch
 
+from app import main
 from calculator import add, subtract, multiply, divide
 from login import LoginSystem
 
@@ -16,6 +19,10 @@ class FeatureTests(unittest.TestCase):
         auth.register_user("alice", "secret123")
         self.assertTrue(auth.login("alice", "secret123"))
         self.assertFalse(auth.login("alice", "wrongpass"))
+
+    def test_main_handles_eof(self):
+        with patch.object(builtins, "input", side_effect=EOFError):
+            main()
 
 
 if __name__ == "__main__":

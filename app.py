@@ -35,8 +35,16 @@ def run_calculator():
             print(f"Invalid input: {exc}")
         except ZeroDivisionError:
             print("You cannot divide by zero.")
+        except EOFError:
+            print("\nCalculator closed.")
+            return
 
-        again = input("Try again? (y/n): ").strip().lower()
+        try:
+            again = input("Try again? (y/n): ").strip().lower()
+        except EOFError:
+            print("\nReturning to menu.")
+            return
+
         if again != "y":
             break
 
@@ -45,8 +53,12 @@ def run_login_demo():
     auth = LoginSystem()
     auth.register_user("admin", "admin123")
 
-    username = input("Username: ").strip()
-    password = input("Password: ").strip()
+    try:
+        username = input("Username: ").strip()
+        password = input("Password: ").strip()
+    except EOFError:
+        print("\nLogin cancelled.")
+        return
 
     if auth.login(username, password):
         print(f"Welcome, {username}!")
@@ -56,8 +68,12 @@ def run_login_demo():
 
 def main():
     while True:
-        show_menu()
-        choice = input("Choose an option: ").strip()
+        try:
+            show_menu()
+            choice = input("Choose an option: ").strip()
+        except EOFError:
+            print("\nExiting app.")
+            break
 
         if choice == "1":
             run_calculator()
