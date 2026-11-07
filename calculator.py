@@ -1,3 +1,14 @@
+class CalculatorHistory:
+    def __init__(self):
+        self.entries = []
+
+    def add_result(self, expression, result):
+        self.entries.append(f"{expression} = {result}")
+
+    def get_history(self):
+        return list(self.entries)
+
+
 def add(a, b):
     return a + b
 
