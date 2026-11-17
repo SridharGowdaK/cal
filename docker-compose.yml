@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: miniapp-suite-ai
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - HOST=0.0.0.0
+      # Optional: enter your Gemini API Key here for enhanced AI responses
+      # - GEMINI_API_KEY=your_key_here
+    restart: unless-stopped

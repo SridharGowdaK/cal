@@ -68,12 +68,26 @@ python web_app.py
 ```
 Open **[http://127.0.0.1:5000](http://127.0.0.1:5000)** in your web browser.
 
-### 2. Launch the Desktop GUI
+### 2. Run with Docker 🐳
+
+Build and run using standard Docker:
+```bash
+docker build -t miniapp-suite-ai .
+docker run -p 5000:5000 miniapp-suite-ai
+```
+
+Or run with **Docker Compose**:
+```bash
+docker compose up --build
+```
+Access the application at **http://localhost:5000**.
+
+### 3. Launch the Desktop GUI
 ```bash
 python app.py
 ```
 
-### 3. Run the Interactive CLI Mode
+### 4. Run the Interactive CLI Mode
 ```bash
 python -c "import app; app.main()"
 ```

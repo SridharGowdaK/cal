@@ -183,11 +183,18 @@ def api_ai_chat():
 
 
 def run_server(port=5000, open_browser=False):
-    if open_browser:
-        webbrowser.open(f"http://127.0.0.1:{port}")
-    app.run(host="127.0.0.1", port=port, debug=False)
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", port))
+    if open_browser and os.environ.get("DOCKER_CONTAINER") != "1":
+        try:
+            webbrowser.open(f"http://127.0.0.1:{port}")
+        except Exception:
+            pass
+    app.run(host=host, port=port, debug=False)
 
 
 if __name__ == "__main__":
-    print("Starting Mini App Suite Web Frontend at http://127.0.0.1:5000")
-    run_server(port=5000, open_browser=True)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"Starting Mini App Suite Web Frontend at http://0.0.0.0:{port}")
+    should_open = os.environ.get("DOCKER_CONTAINER") != "1" and not os.environ.get("NO_BROWSER")
+    run_server(port=port, open_browser=should_open)
