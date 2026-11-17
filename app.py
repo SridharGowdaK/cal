@@ -181,7 +181,7 @@ class AppWindow:
 
         # Active session display
         session_frame = ttk.LabelFrame(container, text=" Active Session ")
-        session_frame.grid(row=5, column=0, columnspan=2, fill=tk.X, padx=10, pady=10)
+        session_frame.grid(row=5, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
 
         self.session_label_var = tk.StringVar(value="Status: Not logged in")
         tk.Label(
