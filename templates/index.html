@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini App Suite + AI</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 font-bold text-xl">
+          ✨
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent">
+            Mini App Suite <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30 ml-1">AI Enabled</span>
+          </h1>
+          <p class="text-xs text-slate-400">Desktop & Web Productivity Platform</p>
+        </div>
+      </div>
+      
+      <!-- Session pill -->
+      <div id="session-badge" class="flex items-center space-x-2 text-xs bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span id="session-text" class="text-slate-300 font-medium">Guest (Not logged in)</span>
+        <button id="logout-btn" onclick="logout()" class="hidden ml-2 text-rose-400 hover:text-rose-300 underline font-semibold">Logout</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-6xl mx-auto px-4 flex space-x-1 overflow-x-auto text-sm border-t border-slate-800/60 pt-1 pb-0.5 scrollbar-none">
+      <button onclick="switchTab('calc')" id="tab-btn-calc" class="tab-btn active px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 border-b-2 border-indigo-500 text-indigo-400 bg-slate-800/50">
+        <span>🧮</span><span>Calculator</span>
+      </button>
+      <button onclick="switchTab('ai-math')" id="tab-btn-ai-math" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>🤖</span><span>AI Math Solver</span>
+      </button>
+      <button onclick="switchTab('auth')" id="tab-btn-auth" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>🔐</span><span>User & Auth</span>
+      </button>
+      <button onclick="switchTab('ai-sec')" id="tab-btn-ai-sec" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>🛡️</span><span>AI Security Audit</span>
+      </button>
+      <button onclick="switchTab('pw-gen')" id="tab-btn-pw-gen" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>🎲</span><span>Password Gen</span>
+      </button>
+      <button onclick="switchTab('ai-chat')" id="tab-btn-ai-chat" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>💬</span><span>AI Assistant</span>
+      </button>
+      <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn px-4 py-2 font-medium rounded-t-lg transition flex items-center space-x-1.5 text-slate-400 hover:text-slate-200">
+        <span>📜</span><span>History</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-1">
+
+    <!-- TAB 1: CALCULATOR -->
+    <section id="tab-calc" class="tab-panel space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <h2 class="text-xl font-semibold mb-4 flex items-center space-x-2">
+          <span>Standard & Scientific Calculator</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">FIRST NUMBER</label>
+            <input type="number" id="calc-a" placeholder="e.g. 12" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">OPERATION</label>
+            <select id="calc-op" onchange="onOpChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+              <option value="+">+ (Addition)</option>
+              <option value="-">- (Subtraction)</option>
+              <option value="*">* (Multiplication)</option>
+              <option value="/">/ (Division)</option>
+              <option value="^">^ (Exponentiation / Power)</option>
+              <option value="%">% (Modulus)</option>
+              <option value="sqrt">sqrt (Square Root)</option>
+              <option value="percentage">% of (Percentage)</option>
+            </select>
+          </div>
+          <div id="calc-b-container">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">SECOND NUMBER</label>
+            <input type="number" id="calc-b" placeholder="e.g. 4" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-6">
+          <button onclick="executeCalculate()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition">Calculate</button>
+          <button onclick="clearCalcInputs()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2.5 rounded-xl transition">Clear</button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="calc-result-box" class="mt-6 p-4 rounded-xl bg-slate-900/80 border border-slate-700 flex items-center justify-between">
+          <span class="text-sm text-slate-400">Result:</span>
+          <span id="calc-result" class="text-2xl font-bold text-emerald-400 font-mono">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: AI NATURAL LANGUAGE MATH SOLVER -->
+    <section id="tab-ai-math" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <div class="flex items-center space-x-3 mb-2">
+          <span class="text-2xl">🤖</span>
+          <div>
+            <h2 class="text-xl font-semibold">AI Natural Language Math Solver</h2>
+            <p class="text-xs text-slate-400">Type equations in plain English or standard algebraic notation.</p>
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="flex flex-wrap gap-2 my-4 text-xs">
+          <span class="text-slate-500 py-1">Try:</span>
+          <button onclick="fillAiMath('What is 18% of 2500?')" class="bg-slate-900 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">18% of 2500</button>
+          <button onclick="fillAiMath('square root of 144 plus 25')" class="bg-slate-900 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">sqrt of 144 plus 25</button>
+          <button onclick="fillAiMath('solve 3*x + 9 = 24')" class="bg-slate-900 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">solve 3*x + 9 = 24</button>
+          <button onclick="fillAiMath('2 to the power of 10')" class="bg-slate-900 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">2 to the power of 10</button>
+        </div>
+
+        <div class="flex space-x-2">
+          <input type="text" id="ai-math-input" placeholder="e.g. What is 25 percent of 6400?" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition">
+          <button onclick="solveAiMath()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+            <span>Solve</span>
+          </button>
+        </div>
+
+        <!-- AI Solution Card -->
+        <div id="ai-math-output" class="hidden mt-6 p-5 rounded-xl bg-slate-900/90 border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs uppercase font-bold text-indigo-400 tracking-wider">Solution Breakdown</span>
+            <span id="ai-math-type" class="text-xs bg-slate-800 px-2.5 py-0.5 rounded-full text-slate-300"></span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Mathematical Formula:</span>
+            <code id="ai-math-form" class="bg-slate-950 px-3 py-1 rounded-lg text-amber-300 font-mono text-sm border border-slate-800"></code>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-slate-400">Final Result:</span>
+            <span id="ai-math-result" class="text-2xl font-bold text-emerald-400 font-mono"></span>
+          </div>
+          <div class="border-t border-slate-800 pt-2">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Reasoning Steps:</span>
+            <ul id="ai-math-steps" class="mt-2 text-xs text-slate-300 space-y-1 list-disc list-inside"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: USER & AUTH -->
+    <section id="tab-auth" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <h2 class="text-xl font-semibold mb-2">User Authentication & Account Management</h2>
+        <p class="text-xs text-slate-400 mb-6">Secured with PBKDF2-HMAC-SHA256 password salting and hashing.</p>
+
+        <div class="space-y-4 max-w-md">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">USERNAME</label>
+            <input type="text" id="auth-username" placeholder="Username" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">PASSWORD</label>
+            <div class="relative">
+              <input type="password" id="auth-password" oninput="checkLiveStrength()" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition pr-10">
+              <button type="button" onclick="togglePasswordVis()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-200 text-xs">👁️</button>
+            </div>
+            <!-- Strength meter -->
+            <div class="mt-2 flex items-center space-x-2">
+              <div class="flex-1 bg-slate-950 h-1.5 rounded-full overflow-hidden">
+                <div id="strength-bar" class="h-full w-0 bg-rose-500 transition-all duration-300"></div>
+              </div>
+              <span id="strength-label" class="text-xs text-slate-400 font-medium">None</span>
+            </div>
+          </div>
+
+          <div class="flex space-x-3 pt-2">
+            <button onclick="handleLogin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition">Log In</button>
+            <button onclick="handleRegister()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 rounded-xl transition">Register New User</button>
+          </div>
+
+          <div id="auth-msg" class="hidden text-xs p-3 rounded-xl border mt-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: AI SECURITY AUDIT -->
+    <section id="tab-ai-sec" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <div class="flex items-center space-x-3 mb-2">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <h2 class="text-xl font-semibold">AI Password Security & Entropy Auditor</h2>
+            <p class="text-xs text-slate-400">Analyzes cryptographic keyspace, brute-force resistance, and common attack patterns.</p>
+          </div>
+        </div>
+
+        <div class="flex space-x-2 my-4">
+          <input type="text" id="sec-audit-input" placeholder="Enter password to audit..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition">
+          <button onclick="runSecurityAudit()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">Audit</button>
+        </div>
+
+        <!-- Audit Result Grid -->
+        <div id="audit-result-card" class="hidden mt-6 p-5 rounded-xl bg-slate-900/90 border border-slate-700 space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Security Score</span>
+              <div id="audit-score" class="text-2xl font-bold mt-1 text-emerald-400 font-mono">--/100</div>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Entropy</span>
+              <div id="audit-entropy" class="text-2xl font-bold mt-1 text-indigo-400 font-mono">-- bits</div>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Length</span>
+              <div id="audit-length" class="text-2xl font-bold mt-1 text-amber-400 font-mono">--</div>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-xs text-slate-400 uppercase font-semibold">Rating</span>
+              <div id="audit-level" class="text-lg font-bold mt-1 text-emerald-400 truncate">--</div>
+            </div>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 font-semibold uppercase">Estimated Time to Brute-Force (10B guesses/sec GPU):</span>
+            <div id="audit-crack-time" class="text-lg font-bold text-rose-400 mt-1 font-mono">--</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <span class="text-xs text-amber-400 font-semibold uppercase">Vulnerability Findings:</span>
+              <ul id="audit-vulnerabilities" class="mt-2 text-xs text-slate-300 space-y-1 list-disc list-inside"></ul>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <span class="text-xs text-emerald-400 font-semibold uppercase">AI Recommendations:</span>
+              <ul id="audit-recommendations" class="mt-2 text-xs text-slate-300 space-y-1 list-disc list-inside"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: PASSWORD GENERATOR -->
+    <section id="tab-pw-gen" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <h2 class="text-xl font-semibold mb-4">Cryptographic Password Generator</h2>
+        
+        <div class="max-w-md space-y-4">
+          <div>
+            <div class="flex justify-between text-xs font-semibold text-slate-400 mb-1">
+              <span>PASSWORD LENGTH</span>
+              <span id="gen-len-display" class="text-indigo-400 font-mono">16</span>
+            </div>
+            <input type="range" id="gen-length" min="8" max="32" value="16" oninput="document.getElementById('gen-len-display').innerText = this.value" class="w-full accent-indigo-500">
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="gen-upper" checked class="rounded accent-indigo-500">
+              <span>Include Uppercase Letters (A-Z)</span>
+            </label>
+            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="gen-digits" checked class="rounded accent-indigo-500">
+              <span>Include Digits (0-9)</span>
+            </label>
+            <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer">
+              <input type="checkbox" id="gen-special" checked class="rounded accent-indigo-500">
+              <span>Include Special Symbols (!@#$%^&*)</span>
+            </label>
+          </div>
+
+          <button onclick="handleGeneratePassword()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition">Generate Secure Password</button>
+
+          <!-- Generated Password Display -->
+          <div id="gen-pw-container" class="hidden mt-4 p-4 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-between">
+            <code id="gen-pw-output" class="text-lg font-mono text-emerald-400 font-bold truncate pr-3"></code>
+            <div class="flex space-x-2">
+              <button onclick="copyGeneratedPassword()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-slate-300 transition">Copy</button>
+              <button onclick="sendGeneratedToAudit()" class="bg-indigo-600 hover:bg-indigo-500 text-xs px-3 py-1.5 rounded-lg text-white transition">Audit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: AI ASSISTANT CHAT -->
+    <section id="tab-ai-chat" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur flex flex-col h-[520px]">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">💬</span>
+            <h2 class="text-lg font-semibold">AI Assistant</h2>
+          </div>
+          <input type="password" id="gemini-api-key" placeholder="Optional: Gemini API Key" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-3 py-1 text-slate-300 focus:outline-none focus:border-indigo-500 w-48">
+        </div>
+
+        <!-- Chat history area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+          <div class="flex items-start space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">AI</div>
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl rounded-tl-none text-xs text-slate-300 max-w-xl">
+              Hello! I am your <strong>Mini App Suite AI Assistant</strong>. Ask me any math equation, security question, or calculation logic!
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="flex space-x-2 mt-4 pt-3 border-t border-slate-700/80">
+          <input type="text" id="chat-input" onkeydown="if(event.key==='Enter') sendChatMessage()" placeholder="Ask AI a question or request a math solution..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
+          <button onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition shadow-lg shadow-indigo-600/30">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: CALCULATION HISTORY -->
+    <section id="tab-history" class="tab-panel hidden space-y-6">
+      <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 shadow-xl backdrop-blur">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">Calculation History Log</h2>
+          <div class="flex space-x-2">
+            <button onclick="refreshHistory()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded-lg text-slate-300 transition">Refresh</button>
+            <button onclick="clearHistory()" class="bg-rose-900/60 hover:bg-rose-800 text-xs px-3 py-1.5 rounded-lg text-rose-200 border border-rose-700/50 transition">Clear History</button>
+          </div>
+        </div>
+
+        <div id="history-container" class="bg-slate-950 border border-slate-800 rounded-xl p-4 min-h-[240px] max-h-[380px] overflow-y-auto font-mono text-xs space-y-2">
+          <div class="text-slate-500 italic">No calculations recorded yet.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    Mini App Suite &copy; 2026 &bull; Powered by Python, Flask, SymPy & AI
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

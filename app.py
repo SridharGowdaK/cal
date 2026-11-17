@@ -1,29 +1,37 @@
+import threading
 import tkinter as tk
-from tkinter import messagebox, ttk, filedialog
+import webbrowser
+from tkinter import filedialog, messagebox, ttk
 
+from ai_service import (
+    ai_assistant_chat,
+    audit_password_security,
+    solve_natural_language_math,
+)
 from calculator import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    power,
-    modulus,
-    square_root,
-    calculate as calc_op,
     CalculatorHistory,
+    add,
+    calculate as calc_op,
+    divide,
+    modulus,
+    multiply,
+    percentage,
+    power,
+    square_root,
+    subtract,
 )
 from login import (
     LoginSystem,
-    password_strength,
     generate_password,
+    password_strength,
 )
 
 
 class AppWindow:
     def __init__(self, root):
         self.root = root
-        self.root.title("Mini App Suite")
-        self.root.geometry("560x580")
+        self.root.title("Mini App Suite + AI")
+        self.root.geometry("600x640")
         self.root.resizable(False, False)
 
         self.history = CalculatorHistory()
@@ -37,16 +45,19 @@ class AppWindow:
         self.calculator_tab = ttk.Frame(self.notebook)
         self.login_tab = ttk.Frame(self.notebook)
         self.generator_tab = ttk.Frame(self.notebook)
+        self.ai_tab = ttk.Frame(self.notebook)
         self.history_tab = ttk.Frame(self.notebook)
 
         self.notebook.add(self.calculator_tab, text="Calculator")
         self.notebook.add(self.login_tab, text="User & Auth")
         self.notebook.add(self.generator_tab, text="Password Gen")
+        self.notebook.add(self.ai_tab, text="AI Features")
         self.notebook.add(self.history_tab, text="History")
 
         self.build_calculator_tab()
         self.build_login_tab()
         self.build_generator_tab()
+        self.build_ai_tab()
         self.build_history_tab()
 
     # ------------------ Calculator Tab ------------------
@@ -325,6 +336,69 @@ class AppWindow:
 
         self.refresh_history()
 
+    # ------------------ AI Tab ------------------
+    def build_ai_tab(self):
+        container = ttk.LabelFrame(self.ai_tab, text=" AI Math & Security Engine ")
+        container.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+
+        # AI Math section
+        tk.Label(container, text="Natural Language Math Query:", font=("Arial", 9, "bold")).grid(row=0, column=0, columnspan=2, padx=10, pady=(8, 2), sticky="w")
+        self.ai_query_var = tk.StringVar(value="What is 15% of 850?")
+        ttk.Entry(container, textvariable=self.ai_query_var, width=38).grid(row=1, column=0, padx=10, pady=4, sticky="w")
+        ttk.Button(container, text="Solve with AI", command=self.solve_ai_math).grid(row=1, column=1, padx=6, pady=4)
+
+        self.ai_math_result_var = tk.StringVar(value="Result: --")
+        tk.Label(container, textvariable=self.ai_math_result_var, font=("Arial", 10, "bold"), fg="#1b5e20").grid(row=2, column=0, columnspan=2, padx=10, pady=4, sticky="w")
+
+        # AI Security Audit section
+        ttk.Separator(container, orient="horizontal").grid(row=3, column=0, columnspan=2, sticky="ew", pady=10)
+
+        tk.Label(container, text="AI Password Security & Entropy Audit:", font=("Arial", 9, "bold")).grid(row=4, column=0, columnspan=2, padx=10, pady=(4, 2), sticky="w")
+        self.ai_audit_pw_var = tk.StringVar(value="SecurePass@2026")
+        ttk.Entry(container, textvariable=self.ai_audit_pw_var, width=38).grid(row=5, column=0, padx=10, pady=4, sticky="w")
+        ttk.Button(container, text="Audit Security", command=self.audit_password_ai).grid(row=5, column=1, padx=6, pady=4)
+
+        self.ai_audit_info_var = tk.StringVar(value="Audit: --")
+        tk.Label(container, textvariable=self.ai_audit_info_var, font=("Arial", 9), fg="#0d47a1", justify="left").grid(row=6, column=0, columnspan=2, padx=10, pady=4, sticky="w")
+
+        # Web Frontend Launcher
+        ttk.Separator(container, orient="horizontal").grid(row=7, column=0, columnspan=2, sticky="ew", pady=10)
+        web_frame = ttk.Frame(container)
+        web_frame.grid(row=8, column=0, columnspan=2, pady=10)
+        ttk.Button(web_frame, text="🌐 Launch Modern Web Frontend (Browser)", command=self.open_web_frontend).pack(padx=10)
+
+    def solve_ai_math(self):
+        query = self.ai_query_var.get().strip()
+        if not query:
+            return
+        solution = solve_natural_language_math(query)
+        if solution.get("success"):
+            self.ai_math_result_var.set(f"Result: {solution['result']} ({solution.get('interpreted_as')})")
+        else:
+            self.ai_math_result_var.set(f"Error: {solution.get('error')}")
+
+    def audit_password_ai(self):
+        pw = self.ai_audit_pw_var.get()
+        if not pw:
+            return
+        res = audit_password_security(pw)
+        if res.get("success"):
+            self.ai_audit_info_var.set(
+                f"Score: {res['security_score']}/100 | Level: {res['security_level']} | Entropy: {res['entropy_bits']} bits\n"
+                f"Est. Crack Time: {res['estimated_crack_time']}"
+            )
+        else:
+            self.ai_audit_info_var.set(f"Error: {res.get('error')}")
+
+    def open_web_frontend(self):
+        try:
+            import web_app
+            threading.Thread(target=lambda: web_app.run_server(port=5000, open_browser=False), daemon=True).start()
+        except Exception:
+            pass
+        webbrowser.open("http://127.0.0.1:5000")
+        messagebox.showinfo("Web Frontend", "Web Frontend opened at http://127.0.0.1:5000")
+
     def clear_history(self):
         if messagebox.askyesno("Confirm Clear", "Are you sure you want to clear calculation history?"):
             self.history.clear()
@@ -355,12 +429,14 @@ class AppWindow:
 
 # ==================== CLI Interface ====================
 def show_menu():
-    print("\n=== Mini App Suite ===")
+    print("\n=== Mini App Suite + AI ===")
     print("1. Calculator")
     print("2. Login & User Management")
     print("3. Password Generator")
     print("4. Calculation History")
-    print("5. Exit")
+    print("5. AI Features (Math & Security)")
+    print("6. Launch Web Frontend")
+    print("7. Exit")
 
 
 def run_calculator(history_instance=None):
@@ -530,6 +606,58 @@ def run_history_demo(history):
         pass
 
 
+def run_ai_demo():
+    print("\n--- AI Features ---")
+    print("1. AI Natural Language Math Solver")
+    print("2. AI Password Security & Entropy Audit")
+    print("3. AI Assistant Chat")
+    print("4. Back to menu")
+    while True:
+        try:
+            choice = input("Select an AI option (1-4): ").strip()
+        except EOFError:
+            return
+        if choice == "1":
+            try:
+                q = input("Enter math question (e.g. '15% of 850' or 'sqrt of 144 plus 5'): ").strip()
+            except EOFError:
+                return
+            sol = solve_natural_language_math(q)
+            if sol.get("success"):
+                print(f"Interpreted as: {sol.get('interpreted_as')}")
+                print(f"Result: {sol.get('result')}")
+                for s in sol.get("steps", []):
+                    print(f" - {s}")
+            else:
+                print(f"Error: {sol.get('error')}")
+            break
+        elif choice == "2":
+            try:
+                pw = input("Enter password to audit: ").strip()
+            except EOFError:
+                return
+            audit = audit_password_security(pw)
+            if audit.get("success"):
+                print(f"Security Score: {audit['security_score']}/100 ({audit['security_level']})")
+                print(f"Entropy: {audit['entropy_bits']} bits | Crack Time: {audit['estimated_crack_time']}")
+                print("Recommendations:")
+                for r in audit.get("recommendations", []):
+                    print(f" - {r}")
+            break
+        elif choice == "3":
+            try:
+                prompt = input("Ask AI a question: ").strip()
+            except EOFError:
+                return
+            resp = ai_assistant_chat(prompt)
+            print(f"\nAI: {resp.get('reply')}\n")
+            break
+        elif choice in ("4", "back", "exit"):
+            break
+        else:
+            print("Please choose 1-4.")
+
+
 def main():
     history = CalculatorHistory()
     auth = LoginSystem()
@@ -551,11 +679,18 @@ def main():
             run_password_generator()
         elif choice == "4":
             run_history_demo(history)
-        elif choice in ("5", "exit", "quit"):
+        elif choice == "5":
+            run_ai_demo()
+        elif choice == "6":
+            import web_app
+            threading.Thread(target=lambda: web_app.run_server(port=5000, open_browser=False), daemon=True).start()
+            webbrowser.open("http://127.0.0.1:5000")
+            print("Web Frontend started at http://127.0.0.1:5000")
+        elif choice in ("7", "exit", "quit"):
             print("Goodbye!")
             break
         else:
-            print("Invalid option. Please choose between 1 and 5.")
+            print("Invalid option. Please choose between 1 and 7.")
 
 
 if __name__ == "__main__":

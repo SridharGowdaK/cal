@@ -4,27 +4,33 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from ai_service import (
+    ai_assistant_chat,
+    audit_password_security,
+    solve_natural_language_math,
+)
 from app import main
 from calculator import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    power,
-    modulus,
-    square_root,
-    percentage,
-    calculate,
     CalculatorHistory,
+    add,
+    calculate,
+    divide,
+    modulus,
+    multiply,
+    percentage,
+    power,
+    square_root,
+    subtract,
 )
 from login import (
-    LoginSystem,
     LoginPage,
-    password_strength,
+    LoginSystem,
     generate_password,
     hash_password,
+    password_strength,
     verify_password,
 )
+from web_app import app as flask_app
 
 
 class FeatureTests(unittest.TestCase):
@@ -147,6 +153,75 @@ class FeatureTests(unittest.TestCase):
         history = CalculatorHistory()
         history.add_result("10 + 5", 15)
         self.assertIn("10 + 5 = 15", history.get_history()[-1])
+
+    def test_ai_math_solver(self):
+        # Percentage
+        pct_res = solve_natural_language_math("What is 15 percent of 850?")
+        self.assertTrue(pct_res["success"])
+        self.assertEqual(pct_res["result"], "127.5")
+
+        # Equation solving
+        eq_res = solve_natural_language_math("solve 2*x + 6 = 14")
+        self.assertTrue(eq_res["success"])
+        self.assertIn("4", eq_res["result"])
+
+        # Square root
+        sqrt_res = solve_natural_language_math("square root of 144 plus 25")
+        self.assertTrue(sqrt_res["success"])
+        self.assertEqual(sqrt_res["result"], "37")
+
+        # Invalid expression
+        err_res = solve_natural_language_math("invalid @#$%")
+        self.assertFalse(err_res["success"])
+
+    def test_ai_password_audit(self):
+        audit = audit_password_security("Tr0ub4dor&3")
+        self.assertTrue(audit["success"])
+        self.assertGreater(audit["entropy_bits"], 30)
+        self.assertIn("years", audit["estimated_crack_time"])
+
+        weak_audit = audit_password_security("123456")
+        self.assertTrue(weak_audit["success"])
+        self.assertIn("Weak", weak_audit["security_level"])
+        self.assertIn("Instant", weak_audit["estimated_crack_time"])
+
+    def test_ai_assistant_chat(self):
+        # Math query
+        res = ai_assistant_chat("What is 20 + 30?")
+        self.assertTrue(res["success"])
+        self.assertIn("50", res["reply"])
+
+        # Security query
+        sec_res = ai_assistant_chat("How does PBKDF2 protect passwords?")
+        self.assertTrue(sec_res["success"])
+        self.assertIn("PBKDF2", sec_res["reply"])
+
+    def test_flask_web_endpoints(self):
+        client = flask_app.test_client()
+
+        # Index route
+        res = client.get("/")
+        self.assertEqual(res.status_code, 200)
+
+        # Calculate API
+        calc_res = client.post("/api/calculate", json={"operation": "*", "a": 7, "b": 6})
+        self.assertEqual(calc_res.status_code, 200)
+        self.assertEqual(calc_res.get_json()["result"], 42.0)
+
+        # AI Math API
+        math_res = client.post("/api/ai/solve-math", json={"query": "square root of 81"})
+        self.assertEqual(math_res.status_code, 200)
+        self.assertEqual(math_res.get_json()["result"], "9")
+
+        # AI Security Audit API
+        audit_res = client.post("/api/ai/audit-password", json={"password": "MyStrongPassword#2026"})
+        self.assertEqual(audit_res.status_code, 200)
+        self.assertTrue(audit_res.get_json()["success"])
+
+        # Password generate API
+        gen_res = client.post("/api/password/generate", json={"length": 18})
+        self.assertEqual(gen_res.status_code, 200)
+        self.assertEqual(len(gen_res.get_json()["password"]), 18)
 
 
 if __name__ == "__main__":

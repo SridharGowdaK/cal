@@ -1,32 +1,40 @@
-# Mini App Suite (gitday1)
+# Mini App Suite + AI (gitday1)
 
-A feature-rich desktop and CLI productivity application in Python featuring an **Advanced Calculator**, **Secure User Authentication & Management**, and a **Cryptographic Password Generator**, complete with calculation history logging and file export.
+A full-stack desktop, web, and CLI productivity suite featuring an **AI Natural Language Math Solver**, **AI Password Security & Entropy Auditor**, **AI Assistant**, **Advanced Calculator**, **Cryptographic Authentication**, and a **Modern Web Frontend**.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. 🧮 Calculator & Calculation History
-* **Basic & Advanced Math**: Supports Addition (`+`), Subtraction (`-`), Multiplication (`*`), Division (`/`), Power / Exponentiation (`^`), Modulo (`%`), and Square Root (`sqrt`).
-* **Input Validation & Safety**: Gracefully handles divide-by-zero, negative square roots, and format errors.
-* **Timestamped History**: Every calculation records an exact timestamp (`[YYYY-MM-DD HH:MM:SS]`).
-* **History Management**: View, count, clear, and export calculation history directly to a `.txt` file.
+### 1. 🤖 AI Capabilities (`ai_service.py`)
+* **Natural Language Math Solver**: Solves math questions stated in plain English (e.g., *"What is 18% of 2500?"*, *"square root of 144 plus 25"*, *"solve 3*x + 9 = 24"*). Powered by SymPy with step-by-step reasoning.
+* **AI Password & Entropy Auditor**: Computes Shannon keyspace entropy in bits, calculates real-world brute-force crack time against modern GPU clusters (10B guesses/sec), detects dictionary/sequential patterns, and outputs tailored recommendations.
+* **AI Assistant & Chat**: Answers math, encryption, and calculation queries. Features an offline intelligent engine with optional **Gemini 1.5 Flash API** integration when an API key is provided.
 
-### 2. 🔐 Security & User Authentication
-* **PBKDF2 Hashing with Salt**: Passwords are never stored in plaintext; they are hashed using standard-library `PBKDF2-HMAC-SHA256` with random cryptographic salts.
-* **Password Strength Checker**: Multi-factor strength meter scoring 0 to 5 with actionable feedback (length, uppercase, lowercase, numbers, special characters).
-* **Separate Registration & Login**: Prevents duplicate username registrations and enforces strong password requirements.
-* **Session Management**: Tracks logged-in users and roles (e.g. `admin`, `user`), with instant logout functionality.
-* **Password Change**: Allows authenticated users to safely update their passwords.
+### 2. 🌐 Modern Web Frontend (`web_app.py`, `templates/`, `static/`)
+* **Single-Page Application (SPA)**: Built with Flask, Tailwind CSS, and vanilla JS.
+* **Full-Featured Web Tabs**:
+  * 🧮 Interactive Calculator with instant feedback
+  * 🤖 AI Math Solver with live step breakdown cards
+  * 🔐 User Registration & Authentication (PBKDF2-HMAC-SHA256)
+  * 🛡️ AI Security Audit & Entropy Gauge
+  * 🎲 Secure Password Generator with one-click clipboard copy
+  * 💬 AI Assistant Chat Interface
+  * 📜 Calculation History Manager
 
-### 3. 🎲 Password Generator
-* **Cryptographically Secure**: Generates random passwords using Python's `secrets` module.
-* **Customizable Parameters**: Adjust length (6 to 32 characters) and toggle uppercase letters, digits, and special characters.
-* **One-Click Clipboard & Transfer**: Copy to clipboard or transfer directly to the login tab in the GUI.
+### 3. 🧮 Calculator & Calculation History (`calculator.py`)
+* **Basic & Advanced Math**: Supports `+`, `-`, `*`, `/`, `^` (power), `%` (modulus), `sqrt` (square root), and `% of` (percentage).
+* **Timestamped History**: Formatted records `[YYYY-MM-DD HH:MM:SS] expression = result`.
+* **Export & Clear**: Save calculations to `.txt` files or clear in one click.
 
-### 4. 🖥️ Dual Interfaces (GUI & CLI)
-* **Tkinter GUI**: Tabbed notebook interface with modern layout, password visibility toggle, real-time feedback, and file dialogs.
-* **Interactive CLI**: Menu-driven terminal interface with robust `EOFError` and `ValueError` handling for server or terminal environments.
+### 4. 🔐 Security & User Authentication (`login.py`)
+* **PBKDF2 Hashing**: Cryptographic password hashing using PBKDF2-HMAC-SHA256 with 100,000 iterations and random per-user salts.
+* **Password Strength Checker**: Multi-factor scoring with actionable feedback.
+* **Cryptographic Generator**: Secure random generator meeting complex character set requirements.
+
+### 5. 🖥️ Desktop GUI & CLI (`app.py`)
+* **Tkinter Desktop GUI**: Native desktop interface with dedicated AI tabs and a one-click launcher for the web frontend.
+* **Interactive CLI**: Menu-driven terminal interface with error guards.
 
 ---
 
@@ -35,10 +43,17 @@ A feature-rich desktop and CLI productivity application in Python featuring an *
 ```text
 gitday1/
 │
-├── app.py              # Main application entry point (GUI + CLI)
-├── calculator.py       # Math logic, operations, and calculation history manager
-├── login.py            # Password hashing, validation, generation, and user auth
-├── test_features.py    # Comprehensive test suite covering all modules
+├── app.py              # Main desktop GUI (Tkinter) & interactive CLI
+├── web_app.py          # Flask backend REST server & web app runner
+├── ai_service.py       # AI natural language math solver, auditor & chat
+├── calculator.py       # Core calculator operations & history logging
+├── login.py            # PBKDF2 hashing, authentication, & password generator
+├── templates/
+│   └── index.html      # Modern responsive web frontend (Tailwind CSS)
+├── static/
+│   ├── app.js          # Client-side reactivity and REST API calls
+│   └── style.css       # Custom scrollbars, badges, and layout styling
+├── test_features.py    # 14 unit tests covering calculator, auth, AI, & web APIs
 └── README.md           # Documentation
 ```
 
@@ -46,14 +61,19 @@ gitday1/
 
 ## 🛠️ Usage
 
-### Running the Desktop GUI
-Ensure Python is installed and run:
+### 1. Launch the Modern Web Frontend
+Run:
+```bash
+python web_app.py
+```
+Open **[http://127.0.0.1:5000](http://127.0.0.1:5000)** in your web browser.
+
+### 2. Launch the Desktop GUI
 ```bash
 python app.py
 ```
 
-### Running the CLI Mode
-The CLI can be run interactively by calling `app.py` in non-GUI terminal mode, or executing individual modules:
+### 3. Run the Interactive CLI Mode
 ```bash
 python -c "import app; app.main()"
 ```
@@ -66,8 +86,7 @@ Default credentials pre-loaded for testing:
 
 ## 🧪 Running Unit Tests
 
-Run the complete test suite:
+Run the complete test suite (14 tests):
 ```bash
 python -m unittest test_features.py -v
 ```
-All tests use Python's built-in `unittest` module with zero external dependencies.
